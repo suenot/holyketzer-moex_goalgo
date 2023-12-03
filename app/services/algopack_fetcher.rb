@@ -2,7 +2,6 @@ class AlgopackFetcher
   include Singleton
 
   BASE_URL = "https://iss.moex.com/iss"
-  START_DATE = Date.parse("1997-03-24")
 
   def initialize
   end
@@ -49,6 +48,7 @@ class AlgopackFetcher
     end
   end
 
+  # TODO: remove? provide only latest cap
   def fetch_shares_cap_batch
     # https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/securities
     response = HTTP.get("#{BASE_URL}/engines/stock/markets/shares/boardgroups/57/securities.json?iss.meta=off")
@@ -88,6 +88,31 @@ class AlgopackFetcher
       else
         raise "Error fetching share #{share.secid} cap: #{response.status} #{response.body.to_s}"
       end
+    end
+  end
+
+  def fetch_history_prices(secid, from:, to: Date.today)
+    # https://iss.moex.com/iss/history/engines/stock/markets/shares/securities/SBER?from=1997-03-24&till=2023-12-01&marketprice_board=1&history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME&limit=1000
+    response = HTTP.get(
+      [
+        "#{BASE_URL}/history/engines/stock/markets/shares/securities/#{secid}.json?from=#{from}",
+        "till=#{to}",
+        "marketprice_board=1",
+        "history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME",
+        "limit=1000"
+      ].join("&")
+    )
+
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      history = body["history"]
+      columns = history["columns"].map(&:downcase)
+      data = history["data"]
+      data.map do |row|
+        Hash[columns.zip(row)]
+      end
+    else
+      raise "Error fetching share #{secid} history prices: #{response.status} #{response.body.to_s}"
     end
   end
 

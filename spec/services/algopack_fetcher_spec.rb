@@ -30,4 +30,11 @@ describe AlgopackFetcher do
   #   expect(response.size).to be > 0
   #   # p response
   # end
+
+  it "gets history prices" do
+    response = fetcher.fetch_history_prices("ABIO", from: Date.today - 30, to: Date.today)
+    expect(response).to be_a(Array)
+    expect(response.size).to be > 0
+    p response
+  end
 end

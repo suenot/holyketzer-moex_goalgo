@@ -1,6 +1,8 @@
 class AlgopackLoader
   include Singleton
 
+  START_DATE = Date.parse("1997-03-24")
+
   def load_shares(skip_existing: false)
     # Fetch all pages of shares with pagination
     loaded_secids = Share.pluck(:secid).to_set
@@ -73,6 +75,48 @@ class AlgopackLoader
         end
       end
       share.update!(version: version)
+    end
+  end
+
+  def load_all_history_prices
+    secids = ShareMacroStat.pluck("distinct(secid)")
+    secids.each do |secid|
+      label = "#{secid} (#{secids.index(secid)+1}/#{secids.size})"
+      puts "Loading history prices for #{label}"
+      share = Share.find_by(secid: secid)
+      from = SharePrice.where(secid: secid).order(date: :desc).first&.date
+      if from
+        from += 1.day
+      else
+        from = START_DATE
+      end
+
+      prev_from = from - 1.day
+      while from < Date.today && prev_from != from
+        puts "Loading history prices for #{label} from #{from}"
+        prev_from = from
+
+        prices = AlgopackFetcher.instance.fetch_history_prices(secid, from: from, to: Date.today)
+
+        attrs = prices.map do |price|
+          date = Date.parse(price["tradedate"])
+          from = date + 1.day
+
+          {
+            share_id: share.id,
+            secid: secid,
+            date: date,
+            open: price["open"],
+            close: price["close"],
+            low: price["low"],
+            high: price["high"],
+            volume: price["volume"].to_i,
+            waprice: price["waprice"],
+          }
+        end
+
+        SharePrice.insert_all(attrs)
+      end
     end
   end
 end
