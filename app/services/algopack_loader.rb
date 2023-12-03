@@ -54,4 +54,25 @@ class AlgopackLoader
       end
     end
   end
+
+  def load_shares_count
+    version = 1
+    shares = Share.where("version < ?", version)
+
+    shares.each do |share|
+      if (counts = SmartlabListedSharesFetcher.instance.fetch_for(share.secid))
+        counts.each do |date, count|
+          if count != nil
+            ShareMacroStat.create!(
+              share: share,
+              secid: share.secid,
+              date: date,
+              shares_count: count,
+            )
+          end
+        end
+      end
+      share.update!(version: version)
+    end
+  end
 end

@@ -16,6 +16,9 @@ https://iss.moex.com/iss/engines/stock/markets/shares/boards
 https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups
 
 
+Начало торгов
+https://iss.moex.com/iss/history/engines/stock/markets/shares/dates
+
 https://iss.moex.com/iss/index/securitycollections
 
 

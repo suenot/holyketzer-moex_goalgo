@@ -2,6 +2,7 @@ class AlgopackFetcher
   include Singleton
 
   BASE_URL = "https://iss.moex.com/iss"
+  START_DATE = Date.parse("1997-03-24")
 
   def initialize
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_03_082138) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_03_134634) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -22,6 +22,18 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_03_082138) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "timescaledb"
+
+  create_table "share_macro_stats", force: :cascade do |t|
+    t.bigint "share_id", null: false
+    t.string "secid", null: false
+    t.string "date", null: false
+    t.bigint "shares_count", null: false
+    t.money "cap", scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["secid", "date"], name: "index_share_macro_stats_on_secid_and_date", unique: true
+    t.index ["share_id"], name: "index_share_macro_stats_on_share_id"
+  end
 
   create_table "shares", force: :cascade do |t|
     t.string "secid", null: false
@@ -39,6 +51,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_03_082138) do
     t.date "history_from"
     t.integer "emmiter_id"
     t.money "cap", scale: 2
+    t.integer "version", default: 0, null: false
     t.index ["isin"], name: "index_shares_on_isin"
     t.index ["secid"], name: "index_shares_on_secid", unique: true
   end
