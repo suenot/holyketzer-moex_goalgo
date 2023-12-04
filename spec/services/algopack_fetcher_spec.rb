@@ -49,6 +49,20 @@ describe AlgopackFetcher do
     response = fetcher.fetch_indexes_history("IMOEX", from: Date.today - 30, to: Date.today)
     expect(response).to be_a(Array)
     expect(response.size).to be > 0
+    # p response
+  end
+
+  it "get currencies" do
+    response = fetcher.fetch_currencies
+    expect(response).to be_a(Array)
+    expect(response.size).to be > 0
+    # p response
+  end
+
+  it "get currencies history prices" do
+    response = fetcher.fetch_currencies_history("GLDRUB_TOD", from: Date.today - 30, to: Date.today)
+    expect(response).to be_a(Array)
+    expect(response.size).to be > 0
     p response
   end
 end

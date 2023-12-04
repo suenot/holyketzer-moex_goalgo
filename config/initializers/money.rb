@@ -59,6 +59,55 @@ MoneyRails.configure do |config|
     decimal_mark:        "."
   }
 
+  config.register_currency = {
+    priority:            1,
+    iso_code:            "GLD",
+    name:                "1/10 унции золота",
+    symbol:              "GLD",
+    symbol_first:        false,
+    subunit:             "1/1000 унции",
+    subunit_to_unit:     100,
+    thousands_separator: " ",
+    decimal_mark:        "."
+  }
+
+  config.register_currency = {
+    priority:            1,
+    iso_code:            "PLD",
+    name:                "1/10 унции палладия",
+    symbol:              "PLD",
+    symbol_first:        false,
+    subunit:             "1/1000 унции",
+    subunit_to_unit:     100,
+    thousands_separator: " ",
+    decimal_mark:        "."
+  }
+
+  config.register_currency = {
+    priority:            1,
+    iso_code:            "SLV",
+    name:                "1 унция серебра",
+    symbol:              "SLV",
+    symbol_first:        false,
+    subunit:             "1/1000 унции",
+    subunit_to_unit:     100,
+    thousands_separator: " ",
+    decimal_mark:        "."
+  }
+
+  config.register_currency = {
+    priority:            1,
+    iso_code:            "PLT",
+    name:                "1 унция платины",
+    symbol:              "PLT",
+    symbol_first:        false,
+    subunit:             "1/1000 унции",
+    subunit_to_unit:     100,
+    thousands_separator: " ",
+    decimal_mark:        "."
+  }
+
+
   # Specify a rounding mode
   # Any one of:
   #

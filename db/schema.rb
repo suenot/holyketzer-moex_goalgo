@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_04_051752) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_04_062840) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -22,6 +22,35 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_04_051752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "timescaledb"
+
+  create_table "currencies", force: :cascade do |t|
+    t.string "secid", null: false
+    t.string "name", null: false
+    t.string "short_name", null: false
+    t.integer "lot_size", null: false
+    t.integer "face_amount", default: 0, null: false
+    t.string "face_currency", default: "RUB", null: false
+    t.string "currency", null: false
+    t.decimal "minstep", precision: 20, scale: 10, null: false
+    t.string "status"
+    t.string "remarks"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "currency_prices", force: :cascade do |t|
+    t.bigint "currency_id", null: false
+    t.string "secid", null: false
+    t.date "date", null: false
+    t.decimal "open", precision: 10, scale: 2
+    t.decimal "close", precision: 10, scale: 2
+    t.decimal "low", precision: 10, scale: 2
+    t.decimal "high", precision: 10, scale: 2
+    t.decimal "waprice", precision: 10, scale: 2
+    t.index ["currency_id", "date"], name: "index_currency_prices_on_currency_id_and_date", unique: true
+    t.index ["currency_id"], name: "index_currency_prices_on_currency_id"
+    t.index ["secid"], name: "index_currency_prices_on_secid"
+  end
 
   create_table "index_prices", force: :cascade do |t|
     t.bigint "shares_index_id", null: false

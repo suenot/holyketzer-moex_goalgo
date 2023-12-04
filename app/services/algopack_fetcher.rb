@@ -157,6 +157,47 @@ class AlgopackFetcher
     end
   end
 
+  def fetch_currencies
+    # https://iss.moex.com/iss/engines/currency/markets/selt/boards/CETS/securities
+    response = HTTP.get("#{BASE_URL}/engines/currency/markets/selt/boards/CETS/securities.json?iss.meta=off")
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      securities = body["securities"]
+      columns = securities["columns"].map(&:downcase)
+      data = securities["data"]
+      data
+        .map { |row| Hash[columns.zip(row)] }
+        .select { |row| row["secid"].end_with?("TOD") }
+    else
+      raise "Error fetching currencies: #{response.status} #{response.body.to_s}"
+    end
+  end
+
+  def fetch_currencies_history(secid, from:, to: Date.today)
+    # https://iss.moex.com/iss/history/engines/currency/markets/selt/boards/CETS/securities/USD000UTSTOM?from=2023-03-24&till=2023-12-01&history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME&limit=1000
+    response = HTTP.get(
+      [
+        "#{BASE_URL}/history/engines/currency/markets/selt/boards/CETS/securities/#{secid}.json?from=#{from}",
+        "till=#{to}",
+        "history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME",
+        "limit=1000"
+      ].join("&")
+    )
+
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      history = body["history"]
+      columns = history["columns"].map(&:downcase)
+      data = history["data"]
+      data.map do |row|
+        Hash[columns.zip(row)]
+      end
+    else
+      raise "Error fetching currency #{secid} history prices: #{response.status} #{response.body.to_s}"
+    end
+  end
+
+
   private
 
   def parse_history_from(body)

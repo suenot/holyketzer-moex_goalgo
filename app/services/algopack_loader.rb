@@ -30,7 +30,7 @@ class AlgopackLoader
           short_name: share_info["shortname"],
           isin: share_info["isin"] || Share::NO_ISIN,
           issue_size: share_info["issuesize"].to_i,
-          nominal_price: Money.new(share_info["facevalue"].to_f*100, share_info["faceunit"]),
+          nominal_price: Money.from_amount(share_info["facevalue"], share_info["faceunit"]),
           issue_date: share_info["issuedate"],
           history_from: share_info["history_from"],
           list_level: share_info["listlevel"].to_i,
@@ -176,5 +176,74 @@ class AlgopackLoader
         IndexPrice.insert_all(attrs)
       end
     end
+  end
+
+  def load_currencies
+    currencies = AlgopackFetcher.instance.fetch_currencies
+    currencies.each do |currency|
+      attrs = {
+        secid: currency["secid"],
+        name: currency["secname"],
+        short_name: currency["shortname"],
+        currency: currency["currencyid"],
+        lot_size: currency["lotsize"],
+        minstep: currency["minstep"],
+        status: currency["status"],
+        remarks: currency["remarks"],
+        face: Money.from_amount(currency["facevalue"], currency["faceunit"]),
+      }
+
+      if (currency = Currency.find_by(secid: currency["secid"]))
+        currency.update!(**attrs)
+      else
+        Currency.create!(**attrs)
+      end
+    end
+  end
+
+  def load_all_currency_history_prices
+    currencies = Currency.all
+    currencies.each_with_index do |currency, i|
+      label = "#{currency.secid} (#{i+1}/#{currencies.size})"
+      puts "Loading history prices for #{label}"
+      from = CurrencyPrice.where(secid: currency.secid).order(date: :desc).first&.date
+      if from
+        from += 1.day
+      else
+        from = START_DATE
+      end
+
+      prev_from = from - 1.day
+      while from < Date.today && prev_from != from
+        puts "Loading history prices for #{label} from #{from}"
+        prev_from = from
+
+        prices = AlgopackFetcher.instance.fetch_currencies_history(currency.secid, from: from, to: Date.today)
+
+        attrs = prices.map do |price|
+          date = Date.parse(price["tradedate"])
+          from = date + 1.day
+
+          {
+            currency_id: currency.id,
+            secid: currency.secid,
+            date: date,
+            open: nil_if_zero(price["open"]),
+            close: nil_if_zero(price["close"]),
+            low: nil_if_zero(price["low"]),
+            high: nil_if_zero(price["high"]),
+            waprice: nil_if_zero(price["waprice"]),
+          }
+        end
+
+        CurrencyPrice.insert_all(attrs)
+      end
+    end
+  end
+
+  private
+
+  def nil_if_zero(value)
+    value == 0 ? nil : value
   end
 end
