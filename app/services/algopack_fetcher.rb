@@ -116,6 +116,47 @@ class AlgopackFetcher
     end
   end
 
+  def fetch_indexes(secids)
+    # https://iss.moex.com/iss/engines/stock/markets/index/securities/
+    response = HTTP.get("#{BASE_URL}/engines/stock/markets/index/securities.json?iss.meta=off")
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      securities = body["securities"]
+      columns = securities["columns"].map(&:downcase)
+      data = securities["data"]
+      data.map do |row|
+        Hash[columns.zip(row)]
+      end.select { |row| secids.include?(row["secid"]) }
+    else
+      raise "Error fetching indexes: #{response.status} #{response.body.to_s}"
+    end
+  end
+
+  def fetch_indexes_history(secid, from:, to: Date.today)
+    # https://iss.moex.com/iss/history/engines/stock/markets/index/securities/IMOEX?from=2023-03-24&till=2023-12-01&marketprice_board=1&history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME&limit=1000
+    response = HTTP.get(
+      [
+        "#{BASE_URL}/history/engines/stock/markets/index/securities/#{secid}.json?from=#{from}",
+        "till=#{to}",
+        "marketprice_board=1",
+        "history.columns=TRADEDATE,WAPRICE,LOW,HIGH,OPEN,CLOSE,VOLUME",
+        "limit=1000"
+      ].join("&")
+    )
+
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      history = body["history"]
+      columns = history["columns"].map(&:downcase)
+      data = history["data"]
+      data.map do |row|
+        Hash[columns.zip(row)]
+      end
+    else
+      raise "Error fetching index #{secid} history prices: #{response.status} #{response.body.to_s}"
+    end
+  end
+
   private
 
   def parse_history_from(body)

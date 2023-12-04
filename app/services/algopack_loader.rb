@@ -119,4 +119,62 @@ class AlgopackLoader
       end
     end
   end
+
+  def load_indexes
+    indexes = AlgopackFetcher.instance.fetch_indexes(["IMOEX", "RTSI"])
+    indexes.each do |index|
+      attrs = {
+        secid: index["secid"],
+        name: index["name"],
+        short_name: index["shortname"],
+        currency: index["currencyid"],
+      }
+
+      if (shares_index = SharesIndex.find_by(secid: index["secid"]))
+        shares_index.update!(**attrs)
+      else
+        SharesIndex.create!(**attrs)
+      end
+    end
+  end
+
+  def load_all_index_history_prices
+    shares_indexes = SharesIndex.all
+    shares_indexes.each_with_index do |shares_index, i|
+      label = "#{shares_index.secid} (#{i+1}/#{shares_indexes.size})"
+      puts "Loading history prices for #{label}"
+      from = IndexPrice.where(secid: shares_index.secid).order(date: :desc).first&.date
+      if from
+        from += 1.day
+      else
+        from = START_DATE
+      end
+
+      prev_from = from - 1.day
+      while from < Date.today && prev_from != from
+        puts "Loading history prices for #{label} from #{from}"
+        prev_from = from
+
+        prices = AlgopackFetcher.instance.fetch_indexes_history(shares_index.secid, from: from, to: Date.today)
+
+        attrs = prices.map do |price|
+          date = Date.parse(price["tradedate"])
+          from = date + 1.day
+
+          {
+            shares_index_id: shares_index.id,
+            secid: shares_index.secid,
+            date: date,
+            open: price["open"],
+            close: price["close"],
+            low: price["low"],
+            high: price["high"],
+            volume: price["volume"].to_i,
+          }
+        end
+
+        IndexPrice.insert_all(attrs)
+      end
+    end
+  end
 end

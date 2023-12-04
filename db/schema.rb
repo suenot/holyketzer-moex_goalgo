@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_03_164400) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_04_051752) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -22,6 +22,22 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_03_164400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "timescaledb"
+
+  create_table "index_prices", force: :cascade do |t|
+    t.bigint "shares_index_id", null: false
+    t.string "secid", null: false
+    t.date "date", null: false
+    t.decimal "open", precision: 10, scale: 2
+    t.decimal "close", precision: 10, scale: 2
+    t.decimal "low", precision: 10, scale: 2
+    t.decimal "high", precision: 10, scale: 2
+    t.bigint "volume"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["secid"], name: "index_index_prices_on_secid"
+    t.index ["shares_index_id", "date"], name: "index_index_prices_on_shares_index_id_and_date", unique: true
+    t.index ["shares_index_id"], name: "index_index_prices_on_shares_index_id"
+  end
 
   create_table "share_macro_stats", force: :cascade do |t|
     t.bigint "share_id", null: false
@@ -69,6 +85,16 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_03_164400) do
     t.integer "version", default: 0, null: false
     t.index ["isin"], name: "index_shares_on_isin"
     t.index ["secid"], name: "index_shares_on_secid", unique: true
+  end
+
+  create_table "shares_indices", force: :cascade do |t|
+    t.string "secid", null: false
+    t.string "name", null: false
+    t.string "short_name", null: false
+    t.string "currency", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["secid"], name: "index_shares_indices_on_secid", unique: true
   end
 
 end
