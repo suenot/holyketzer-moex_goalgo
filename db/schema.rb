@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_04_062840) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_04_065120) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -42,11 +42,11 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_04_062840) do
     t.bigint "currency_id", null: false
     t.string "secid", null: false
     t.date "date", null: false
-    t.decimal "open", precision: 10, scale: 2
-    t.decimal "close", precision: 10, scale: 2
-    t.decimal "low", precision: 10, scale: 2
-    t.decimal "high", precision: 10, scale: 2
-    t.decimal "waprice", precision: 10, scale: 2
+    t.decimal "open", precision: 16, scale: 8
+    t.decimal "close", precision: 16, scale: 8
+    t.decimal "low", precision: 16, scale: 8
+    t.decimal "high", precision: 16, scale: 8
+    t.decimal "waprice", precision: 16, scale: 8
     t.index ["currency_id", "date"], name: "index_currency_prices_on_currency_id_and_date", unique: true
     t.index ["currency_id"], name: "index_currency_prices_on_currency_id"
     t.index ["secid"], name: "index_currency_prices_on_secid"
@@ -84,12 +84,12 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_04_062840) do
     t.bigint "share_id", null: false
     t.string "secid", null: false
     t.date "date", null: false
-    t.decimal "open", precision: 10, scale: 2
-    t.decimal "close", precision: 10, scale: 2
-    t.decimal "low", precision: 10, scale: 2
-    t.decimal "high", precision: 10, scale: 2
+    t.decimal "open", precision: 16, scale: 8
+    t.decimal "close", precision: 16, scale: 8
+    t.decimal "low", precision: 16, scale: 8
+    t.decimal "high", precision: 16, scale: 8
     t.bigint "volume"
-    t.decimal "waprice", precision: 10, scale: 2
+    t.decimal "waprice", precision: 16, scale: 8
     t.index ["secid"], name: "index_share_prices_on_secid"
     t.index ["share_id", "date"], name: "index_share_prices_on_share_id_and_date", unique: true
     t.index ["share_id"], name: "index_share_prices_on_share_id"
