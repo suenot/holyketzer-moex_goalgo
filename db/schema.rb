@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_05_072827) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_05_084847) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -66,6 +66,18 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_05_072827) do
     t.index ["secid"], name: "index_index_prices_on_secid"
     t.index ["shares_index_id", "date"], name: "index_index_prices_on_shares_index_id_and_date", unique: true
     t.index ["shares_index_id"], name: "index_index_prices_on_shares_index_id"
+  end
+
+  create_table "share_caps", force: :cascade do |t|
+    t.bigint "share_id", null: false
+    t.string "secid", null: false
+    t.date "date", null: false
+    t.bigint "cap", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["secid"], name: "index_share_caps_on_secid"
+    t.index ["share_id", "date"], name: "index_share_caps_on_share_id_and_date", unique: true
+    t.index ["share_id"], name: "index_share_caps_on_share_id"
   end
 
   create_table "share_macro_stats", force: :cascade do |t|
