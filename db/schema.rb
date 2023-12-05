@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_04_065120) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_05_072827) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -71,12 +71,11 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_04_065120) do
   create_table "share_macro_stats", force: :cascade do |t|
     t.bigint "share_id", null: false
     t.string "secid", null: false
-    t.string "date", null: false
     t.bigint "shares_count", null: false
-    t.money "cap", scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["secid", "date"], name: "index_share_macro_stats_on_secid_and_date", unique: true
+    t.bigint "cap"
+    t.date "date", null: false
     t.index ["share_id"], name: "index_share_macro_stats_on_share_id"
   end
 
