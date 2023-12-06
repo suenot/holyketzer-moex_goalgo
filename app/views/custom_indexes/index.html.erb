@@ -1,0 +1,27 @@
+<!-- FILEPATH: /Users/alex/my/moex_goalgo/web_app/app/views/custom_indicies/index.html.erb -->
+
+<h1>Custom Indices</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @custom_indexes.each do |custom_index| %>
+      <tr>
+        <td><%= custom_index.name %></td>
+        <td>
+          <%= link_to "Show", custom_index %>
+          <%= link_to "Edit", edit_custom_index_path(custom_index) %>
+          <%= link_to "Delete", custom_index, method: :delete, data: { confirm: "Are you sure you want to delete this custom index?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "New Custom Index", new_custom_index_path %>
