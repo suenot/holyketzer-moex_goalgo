@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_05_084847) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_06_094453) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -50,6 +50,34 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_05_084847) do
     t.index ["currency_id", "date"], name: "index_currency_prices_on_currency_id_and_date", unique: true
     t.index ["currency_id"], name: "index_currency_prices_on_currency_id"
     t.index ["secid"], name: "index_currency_prices_on_secid"
+  end
+
+  create_table "custom_index_items", force: :cascade do |t|
+    t.bigint "custom_index_id", null: false
+    t.bigint "share_id", null: false
+    t.decimal "shares_count", precision: 24, scale: 8, null: false
+    t.date "date", null: false
+    t.decimal "weight", precision: 10, scale: 8, null: false
+    t.index ["custom_index_id", "date"], name: "index_custom_index_items_on_custom_index_id_and_date"
+    t.index ["custom_index_id"], name: "index_custom_index_items_on_custom_index_id"
+    t.index ["share_id"], name: "index_custom_index_items_on_share_id"
+  end
+
+  create_table "custom_index_prices", force: :cascade do |t|
+    t.bigint "custom_index_id", null: false
+    t.date "date", null: false
+    t.decimal "open", precision: 10, scale: 2, null: false
+    t.decimal "close", precision: 10, scale: 2, null: false
+    t.index ["custom_index_id"], name: "index_custom_index_prices_on_custom_index_id"
+  end
+
+  create_table "custom_indices", force: :cascade do |t|
+    t.string "name", null: false
+    t.json "settings", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "coeff_d", precision: 16, scale: 4
+    t.index ["name"], name: "index_custom_indices_on_name", unique: true
   end
 
   create_table "index_prices", force: :cascade do |t|

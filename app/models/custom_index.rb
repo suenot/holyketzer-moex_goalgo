@@ -1,0 +1,2 @@
+class CustomIndex < ApplicationRecord
+end
