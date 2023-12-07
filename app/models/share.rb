@@ -6,4 +6,5 @@ class Share < ApplicationRecord
   SHARE_TYPES = [COMMON_SHARE, PREFERRED_SHARE, DEPOSITARY_RECEIPT].freeze
 
   monetize :nominal_price_amount
+  belongs_to :share_sector, optional: true
 end
