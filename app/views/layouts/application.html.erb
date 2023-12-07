@@ -28,9 +28,17 @@
                 <a class="nav-link" href="#">Мои индексы</a>
               </li>
             </ul>
-            <form class="d-flex">
-              <button class="btn btn-success" type="submit">Войти</button>
-            </form>
+              <% if current_user %>
+                <form action="<%= destroy_user_session_path %>" method="delete">
+                  <div class="btn btn-navbar btn-secondary btn-profile"><%= current_user.email %></div>
+                  <button class="btn btn-navbar btn-success" type="submit">Выйти</button>
+                </form>
+              <% else %>
+                <form class="d-flex">
+                  <a class="btn btn-navbar btn-success" type="submit" href="<%= new_user_session_path %>">Войти</a>
+                  <a class="btn btn-navbar btn-primary" type="submit" href="<%= new_user_registration_path %>">Зарегистрироваться</a>
+                </form>
+              <% end %>
           </div>
         </div>
       </nav>
@@ -38,6 +46,17 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
+            <% if notice %>
+              <div class="alert alert-warning" role="alert">
+                <%= notice %>
+              </div>
+            <% end %>
+            <% if alert %>
+              <div class="alert alert-danger" role="alert">
+                <%= alert %>
+              </div>
+            <% end %>
+
             <%= yield %>
           </div>
         </div>

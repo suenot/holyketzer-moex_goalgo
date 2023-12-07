@@ -1,5 +1,7 @@
 
 class CustomIndexesController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     @custom_indexes = CustomIndex.all
   end

@@ -13,3 +13,12 @@
  *= require_tree .
  *= require_self
  */
+
+.btn-navbar {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.btn-profile {
+  cursor: default !important;
+}
