@@ -38,6 +38,8 @@ namespace :deploy do
   end
 end
 
+# set :puma_enable_socket_service, true
+
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
 
