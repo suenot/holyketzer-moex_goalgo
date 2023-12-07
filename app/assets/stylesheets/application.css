@@ -27,3 +27,11 @@
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+.form-check.form-check-inline {
+  margin-left: 30px;
+}
+
+.input-group-text {
+  min-width: 250px;
+}

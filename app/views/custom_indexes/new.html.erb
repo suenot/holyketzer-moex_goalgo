@@ -1,0 +1,81 @@
+<!-- FILEPATH: /Users/alex/my/moex_goalgo/web_app/app/views/custom_indexes/new.html.erb -->
+
+<h1>Собрать свой индекс</h1>
+
+<%= form_with(model: @custom_index, url: custom_indexes_path, method: :post) do |form| %>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Формирование базы расчёта</span>
+    <select class="form-select">
+      <option selected value="quarterly">Раз в квартал</option>
+      <option value="yearly">Раз в год</option>
+    </select>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Фильтр по уровню листинга</span>
+    <select class="form-select filter-levels multiple-select-field" data-placeholder="Выбери один или несколько уровней (опционально)" multiple>
+      <option value="1">Уровень 1</option>
+      <option value="2">Уровень 2</option>
+      <option value="3">Уровень 3</option>
+    </select>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Фильтр по сектору</span>
+    <select class="form-select filter-tickers multiple-select-field" data-placeholder="Выбери сектора экономики (опционально)" multiple>
+    </select>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Фильтр по акциям</span>
+    <select class="form-select filter-sectors multiple-select-field" data-placeholder="Выбери акции (опционально)" multiple>
+      <% @shares.each do |secid, name| %>
+        <option value="<%= secid %>"><%= name %>&nbsp;[<b><%= secid %></b>]</option>
+      <% end %>
+    </select>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Принцип отбора</span>
+    <span>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="selection_topcap" checked>
+
+        <label class="form-check-label" for="inlineRadio1">Топ рыночной капитализации</label>
+        <div class="form-floating mb-3">
+          <input type="number" min="5" max="500" step="10" id="topcap_days" class="form-control" value="50" />
+          <label class="form-label" for="topcap_days">Количество акций</label>
+        </div>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="selection_momentum" value="selection_momentum">
+
+        <label class="form-check-label" for="selection_momentum">Моментум за последние</label>
+        <div class="form-floating mb-3">
+          <input type="number" min="30" max="730" step="30" id="momentum_days" class="form-control" value="365" />
+          <label for="momentum_days">Количество дней</label>
+        </div>
+      </div>
+    </span>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">Взвешивание акций</span>
+    <select class="form-select">
+      <option selected value="equal">Равное</option>
+      <option value="market_cap">По рыночной капитализации</option>
+    </select>
+  </div>
+
+  <div class="form-floating mb-3">
+    <input type="text" class="form-control" id="floatingInput" placeholder="">
+    <label for="floatingInput">Название</label>
+  </div>
+
+
+  <div class="actions">
+    <%= form.submit "Произвести расчёт", class: "btn btn-success" %>
+  </div>
+<% end %>
+

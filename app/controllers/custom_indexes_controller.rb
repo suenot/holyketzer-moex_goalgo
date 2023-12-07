@@ -11,6 +11,7 @@ class CustomIndexesController < ApplicationController
   end
 
   def new
+    @shares = Share.order(:short_name).pluck(:secid, :short_name)
     @custom_index = CustomIndex.new
   end
 
