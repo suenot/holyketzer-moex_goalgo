@@ -22,3 +22,8 @@
 .btn-profile {
   cursor: default !important;
 }
+
+.btn-vmargin {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

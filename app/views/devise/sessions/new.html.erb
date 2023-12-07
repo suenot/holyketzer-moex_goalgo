@@ -21,7 +21,13 @@
       <% end %>
       <button class="w-100 btn btn-lg btn-success" type="submit">Войти</button>
     <% end %>
+    <%- if devise_mapping.omniauthable? %>
+      <%- resource_class.omniauth_providers.each do |provider| %>
+        <%= button_to raw("<i class=\"bi bi-github\"></i> Зайти через #{OmniAuth::Utils.camelize(provider)}"), omniauth_authorize_path(resource_name, provider), data: { turbo: false }, class: "w-100 btn btn-lg btn-primary btn-vmargin" %><br />
+      <% end %>
+    <% end %>
   </main>
 </div>
 
 <% render "devise/shared/links" %>
+

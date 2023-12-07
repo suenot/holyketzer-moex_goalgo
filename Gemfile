@@ -33,6 +33,10 @@ gem "http"
 
 gem "money-rails", "~> 1.12"
 
+gem "omniauth-rails_csrf_protection"
+gem "omniauth-github"
+gem "omniauth-google-oauth2"
+
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 
