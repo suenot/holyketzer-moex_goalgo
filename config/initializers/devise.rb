@@ -278,14 +278,14 @@ Devise.setup do |config|
       :github,
       Rails.application.credentials.dig(:production, :github, :github_client_id),
       Rails.application.credentials.dig(:production, :github, :github_client_secret),
-      scope:'user,public_repo'
+      scope:'user:email'
     )
   else
     config.omniauth(
       :github,
       Rails.application.credentials.dig(:github, :github_client_id),
       Rails.application.credentials.dig(:github, :github_client_secret),
-      scope:'user,public_repo'
+      scope:'user:email'
     )
   end
 
