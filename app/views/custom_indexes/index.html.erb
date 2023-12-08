@@ -6,7 +6,6 @@
   <thead>
     <tr>
       <th>Name</th>
-      <th>Description</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -16,8 +15,7 @@
         <td><%= custom_index.name %></td>
         <td>
           <%= link_to "Show", custom_index %>
-          <%= link_to "Edit", edit_custom_index_path(custom_index) %>
-          <%= link_to "Delete", custom_index, method: :delete, data: { confirm: "Are you sure you want to delete this custom index?" } %>
+          <% link_to "Delete", custom_index, method: :delete, data: { confirm: "Are you sure you want to delete this custom index?" } %>
         </td>
       </tr>
     <% end %>

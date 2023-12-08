@@ -36,3 +36,4 @@
 /config/master.key
 
 /db/pg_data
+/db/redis_data

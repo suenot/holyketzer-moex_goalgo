@@ -50,3 +50,7 @@
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+.index-date {
+  min-width: 120px;
+}
