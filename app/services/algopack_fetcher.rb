@@ -213,7 +213,7 @@ class AlgopackFetcher
 
       if listed_till
         listed_till = Date.parse(listed_till)
-        (Date.today - listed_till).days > 30 ? listed_till : nil
+        (Date.today.to_time - listed_till.to_time) > 30.days ? listed_till : nil
       else
         nil
       end
