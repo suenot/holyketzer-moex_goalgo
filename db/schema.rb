@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_08_203617) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_08_212203) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -81,6 +81,12 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_08_203617) do
     t.integer "progress", default: 0, null: false
     t.string "error"
     t.bigint "user_id", null: false
+    t.float "avg_mr"
+    t.float "avg_yr"
+    t.float "max_md"
+    t.float "max_yd"
+    t.float "rsd"
+    t.float "sharp"
     t.index ["name"], name: "index_custom_indices_on_name", unique: true
     t.index ["user_id"], name: "index_custom_indices_on_user_id"
   end

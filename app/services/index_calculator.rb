@@ -79,9 +79,19 @@ class IndexCalculator
         create_index_prices(custom_index, last_date, Date.today, index_items_per_period[-1], delisted_shares)
       end
 
-      index_items_per_period.size.tap do |size|
-        custom_index.update!(status: "done", progress: 100, error: nil)
-      end
+      price_line = CustomIndexPrice.where(custom_index: custom_index)
+        .order(date: :asc)
+        .pluck(:date, :open, :close)
+      index_stat = IndexStat.calc(price_line)
+      custom_index.update!(
+        status: "done", progress: 100, error: nil,
+        avg_mr: index_stat.avg_mr,
+        avg_yr: index_stat.avg_yr,
+        max_md: index_stat.max_md,
+        max_yd: index_stat.max_yd,
+        rsd: index_stat.rsd,
+        sharp: index_stat.sharp,
+      )
     end
 
     def filter_shares(date, end_date, filters)

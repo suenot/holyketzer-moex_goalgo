@@ -12,7 +12,6 @@
   <div class="alert alert-warning" role="alert">
     Индекс считается. Пожалуйста, подождите...
   </div>
-  <%# progress bar %>
   <div class="progress">
     <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: <%= @custom_index.progress %>%" aria-valuenow="<%= @custom_index.progress %>" aria-valuemin="0" aria-valuemax="100"></div>
   </div>
@@ -56,6 +55,32 @@
     <tr>
       <th scope="row">Взвешивание</th>
       <td><%= @settings[IndexCalculator::WEIGHING] == IndexCalculator::WEIGHING_EQUAL ? "Равное" : "По рыночной капитализации" %></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Статистика</h2>
+<table class="table table-striped">
+  <tbody>
+    <tr>
+      <th scope="row">Среднегодовая доходность</th>
+      <td><%= @custom_index.avg_yr.round(2) %>%</td>
+    </tr>
+    <tr>
+      <th scope="row">Среднемесячная доходность</th>
+      <td><%= @custom_index.avg_mr.round(2) %>%</td>
+    </tr>
+    <tr>
+      <th scope="row">Максимальная просадка за год</th>
+      <td><%= @custom_index.max_yd.round(2) %>%</td>
+    </tr>
+    <tr>
+      <th scope="row">Максимальная просадка за месяц</th>
+      <td><%= @custom_index.max_md.round(2) %>%</td>
+    </tr>
+    <tr>
+      <th scope="row">Стандартное отклонение</th>
+      <td><%= @custom_index.rsd.round(2) %>%</td>
     </tr>
   </tbody>
 </table>
