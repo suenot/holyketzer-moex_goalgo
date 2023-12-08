@@ -197,6 +197,30 @@ class AlgopackFetcher
     end
   end
 
+  def fetch_listed_till(secid)
+    response = HTTP.get("#{BASE_URL}/securities/#{secid}.json")
+
+    if response.status.success?
+      body = JSON.parse(response.body.to_s)
+      boards = body["boards"]
+      columns = boards["columns"]
+      data = boards["data"]
+
+      listed_till = data.map { |row| Hash[columns.zip(row)] }
+        .select { |row| row["is_primary"] == 1 }
+        .map { |row| row["listed_till"] }
+        .first
+
+      if listed_till
+        listed_till = Date.parse(listed_till)
+        (Date.today - listed_till).days > 30 ? listed_till : nil
+      else
+        nil
+      end
+    else
+      raise "Error fetching share #{secid} listed till: #{response.status} #{response.body.to_s}"
+    end
+  end
 
   private
 
@@ -208,5 +232,9 @@ class AlgopackFetcher
       .map { |row| row["history_from"] }
       .compact
       .min
+  end
+
+  def max_listed_till(body)
+
   end
 end

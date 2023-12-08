@@ -241,6 +241,21 @@ class AlgopackLoader
     end
   end
 
+  def load_listed_till
+    total = Share.count
+    found = 0
+    Share.all.each_with_index do |share, i|
+      puts "#{i+1}/#{total} #{share.secid}"
+      listed_till = AlgopackFetcher.instance.fetch_listed_till(share.secid)
+      share.update!(listed_till: listed_till)
+
+      if listed_till
+        found += 1
+      end
+    end
+    puts "Found listed till for #{found}/#{total} shares"
+  end
+
   private
 
   def nil_if_zero(value)
