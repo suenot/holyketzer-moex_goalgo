@@ -65,23 +65,6 @@ class IndexCalculator
       index_items_per_period.size
     end
 
-    def __shape__
-      # Model CustomIndex
-      {
-        name: "CustomIndex",
-        review_period: "quarterly", # or "yearly" Формирование Базы расчета
-        filters:[
-          ["listing_level", 1],
-          ["tickers", ["SBER", "GAZP", "LKOH", "GMKN", "ROSN", "NVTK", "TATN", "SNGS", "VTBR", "SBERP"]],
-          ["sector", "Energy"],
-        ],
-        selection: ["market_cap", {"top": 50}], # ["momentum", {"period": 365, "benchmark": "MOEX"}]
-        weighing: "equal", # or "market_cap"
-      }
-    end
-
-    private
-
     def filter_shares(date, filters)
       share_caps = ShareCap.where(date: date)
 
@@ -91,8 +74,8 @@ class IndexCalculator
           share_caps = share_caps.where(share_id: Share.where(list_level: filter_value).select(:id))
         when FILTERS_TICKERS
           share_caps = share_caps.where(secid: filter_value)
-        # when FILTERS_SECTOR # TDB
-        #   share_caps = share_caps.where(secid: filter.values.first)
+        when FILTERS_SECTOR
+          share_caps = share_caps.where(share_id: Share.where(share_sector_id: filter_value).select(:id))
         else
           raise "Unknown filter #{filter}"
         end
@@ -100,6 +83,8 @@ class IndexCalculator
 
       share_caps
     end
+
+    private
 
     def select_shares(share_caps, date, selection)
       selection_key, selection_value = *selection

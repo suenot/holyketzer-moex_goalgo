@@ -15,6 +15,11 @@
     <!-- Select2 Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   </head>
 
   <body>
@@ -28,10 +33,10 @@
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
             <% if current_user %>
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="<%= new_custom_index_path %>">Собрать</a>
+                <a class="nav-link active" aria-current="page" href="<%= new_custom_index_path %>">Собрать новый индекс</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Мои индексы</a>
+                <a class="nav-link" href="<%= custom_indexes_path %>">Мои индексы</a>
               </li>
             <% end %>
           </ul>
@@ -68,10 +73,5 @@
         </div>
       </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Select2 Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   </body>
 </html>

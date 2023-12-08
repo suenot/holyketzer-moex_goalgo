@@ -8,8 +8,8 @@ class SectorLoader
 
       sectors_by_name = {}
       csv_data.each do |row|
-        sector_name = row["Sector (rus)"]
-        secid = row["Code"]
+        sector_name = row["Sector (rus)"].strip()
+        secid = row["Code"].strip()
 
         sectors_by_name[sector_name] ||= ShareSector.find_or_create_by!(name: sector_name)
         if (share = Share.find_by(secid: secid))
