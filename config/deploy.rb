@@ -10,6 +10,8 @@ set :repo_url, "git@github.com:holyketzer/moex_goalgo.git"
 # Default deploy_to directory is /var/www/your_stock_index
 set :deploy_to, "/var/www/your_stock_index"
 
+set :puma_log, -> { shared_path.join("log/puma-#{fetch(:stage )}.log") }
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 

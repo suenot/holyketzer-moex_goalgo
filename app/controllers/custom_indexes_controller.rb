@@ -2,7 +2,7 @@
 class CustomIndexesController < ApplicationController
   before_action :authenticate_user!
 
-  protect_from_forgery with: :null_session, only: [:filter_check]
+  skip_before_action :verify_authenticity_token, only: [:filter_check]
 
   def index
     @custom_indexes = custom_indexes_scope
@@ -50,7 +50,7 @@ class CustomIndexesController < ApplicationController
         IndexCalculator::FILTERS_TICKERS => secids,
       }.compact
 
-      count = IndexCalculator.filter_shares(date, filters).size
+      count = IndexCalculator.filter_shares(date, date + 3.months, filters).size
       render json: { count: count }
     else
       render json: { error: 'No data available' }
@@ -80,8 +80,8 @@ class CustomIndexesController < ApplicationController
 
   def normalize_prices!(price_lines)
     index = SharesIndex.find_by(secid: "IMOEX")
-    min_date = price_lines.values.map { |line| line[0][0] }.min
-    max_date = price_lines.values.map { |line| line[-1][0] }.max
+    min_date = price_lines.values.reject(&:blank?).map { |line| line[0][0] }.min
+    max_date = price_lines.values.reject(&:blank?).map { |line| line[-1][0] }.max
 
     benchmark = IndexPrice.where(shares_index: index)
       .where("date >= ?", min_date)
@@ -92,12 +92,14 @@ class CustomIndexesController < ApplicationController
     benchmark_by_date = benchmark.to_h { |row| [row[0], row[-1]] }
 
     mapped = price_lines.each do |name, price_line|
-      bm_value = benchmark_by_date[price_line[0][0]]
-      value = price_line[0][-1]
-      coeff = bm_value / value
-      price_line.each do |row|
-        row[1] *= coeff
-        row[2] *= coeff
+      if price_line.present?
+        bm_value = benchmark_by_date[price_line[0][0]]
+        value = price_line[0][-1]
+        coeff = bm_value / value
+        price_line.each do |row|
+          row[1] *= coeff
+          row[2] *= coeff
+        end
       end
     end
 
