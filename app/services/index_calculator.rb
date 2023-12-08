@@ -36,14 +36,25 @@ class IndexCalculator
     end
   end
 
+  class DelistedShare
+    attr_reader :share_id, :listed_till, :last_close
+
+    def initialize(share_id:, listed_till:, last_close:)
+      @share_id = share_id
+      @listed_till = listed_till
+      @last_close = last_close
+    end
+  end
+
   class << self
     def build_index(custom_index)
       custom_index.update!(status: "in_progress", progress: 0)
+      delisted_shares = load_delisted_shares
 
       settings = custom_index.settings
       prev_index_items = []
-      index_items_per_period = date_iterator(settings[REVIEW_PERIOD]) do |date|
-        share_caps = filter_shares(date, settings[FILTERS])
+      index_items_per_period = date_iterator(settings[REVIEW_PERIOD]) do |date, end_date|
+        share_caps = filter_shares(date, end_date, settings[FILTERS])
         share_caps = select_shares(share_caps, date, settings[SELECTION])
         share_cap_by_weight = weigh_shares(share_caps, settings[WEIGHING])
         index_items = create_index_items(custom_index, date, share_cap_by_weight, prev_index_items)
@@ -58,22 +69,22 @@ class IndexCalculator
       index_items_per_period.each_cons(2) do |prev_index_items, index_items|
         from_date = prev_index_items.first.date
         to_date = index_items.first.date - 1.day
-        create_index_prices(custom_index, from_date, to_date, prev_index_items)
+        create_index_prices(custom_index, from_date, to_date, prev_index_items, delisted_shares)
         last_date = to_date
         i += 1
         custom_index.update!(progress: (i * 100 / total_count))
       end
 
       if last_date
-        create_index_prices(custom_index, last_date, Date.today, index_items_per_period[-1])
+        create_index_prices(custom_index, last_date, Date.today, index_items_per_period[-1], delisted_shares)
       end
 
       index_items_per_period.size.tap do |size|
-        custom_index.update!(status: "done", progress: 100)
+        custom_index.update!(status: "done", progress: 100, error: nil)
       end
     end
 
-    def filter_shares(date, filters)
+    def filter_shares(date, end_date, filters)
       share_caps = ShareCap.where(date: date)
 
       filters.each do |filter_key, filter_value|
@@ -89,6 +100,19 @@ class IndexCalculator
         end
       end
 
+      # filter by count of traded days
+      # about 70% of working days per year, consider 50% of days ok
+      before_date = date - (end_date - date)
+      traded_days_threshold = ((end_date - date) * 0.5).to_i
+      liquid_share_ids = SharePrice.where(share_id: share_caps.select(:share_id))
+        .where("date <= ?", date)
+        .where("date >= ?", before_date)
+        .where("close > 0")
+        .group(:share_id)
+        .having("count(*) >= ?", traded_days_threshold)
+        .pluck(:share_id)
+
+      share_caps = share_caps.where(share_id: liquid_share_ids)
       share_caps
     end
 
@@ -216,38 +240,61 @@ class IndexCalculator
       end
     end
 
-    def create_index_prices(custom_index, from_date, to_date, index_items)
+    def create_index_prices(custom_index, from_date, to_date, index_items, delisted_shares_data)
+      CustomIndexPrice.transaction do
+        CustomIndexPrice.where(custom_index: custom_index)
+          .where("date >= ?", from_date)
+          .where("date <= ?", to_date)
+          .delete_all
 
-      (from_date..to_date).each do |date|
-        share_ids = index_items.map(&:share_id)
-        prices_by_share_id = {}
-        SharePrice.where(share_id: share_ids, date: date).where("open > 0 and close > 0").each do |share_price|
-          prices_by_share_id[share_price.share_id] = share_price
-        end
+        attrs = []
 
-        if prices_by_share_id.size == share_ids.size
-          CustomIndexPrice.transaction do
-            CustomIndexPrice.where(custom_index: custom_index, date: date).delete_all
+        (from_date..to_date).each do |date|
+          share_ids = index_items.map(&:share_id)
+          prices_by_share_id = {}
 
-            CustomIndexPrice.create!(
-              custom_index: custom_index,
-              date: date,
-              open: calc_index_points(index_items, prices_by_share_id, custom_index, :open),
-              close: calc_index_points(index_items, prices_by_share_id, custom_index, :close),
-              # low: calc_index_points(index_items, prices_by_share_id, custom_index, :low),
-              # high: calc_index_points(index_items, prices_by_share_id, custom_index, :high),
-              # volume: 0,
-            )
+          required_shares = {}
+          delisted_shares = {}
+          share_ids.each do |share_id|
+            if delisted_shares_data[share_id] && delisted_shares_data[share_id].listed_till < date
+              delisted_shares[share_id] = true
+            else
+              required_shares[share_id] = true
+            end
           end
-        else
-          puts "Not all prices for #{date} #{custom_index.name}"
+
+          SharePrice.where(share_id: share_ids, date: date).where("open > 0 and close > 0").each do |share_price|
+            prices_by_share_id[share_price.share_id] = share_price
+            required_shares.delete(share_price.share_id)
+          end
+
+          if prices_by_share_id.size > 0 && required_shares.size == 0
+            attrs << {
+              custom_index_id: custom_index.id,
+              date: date,
+              open: calc_index_points(index_items, prices_by_share_id, custom_index, :open, delisted_shares_data),
+              close: calc_index_points(index_items, prices_by_share_id, custom_index, :close, delisted_shares_data),
+              # low: calc_index_points(index_items, prices_by_share_id, custom_index, :low), # should be composed from smaller periods
+              # high: calc_index_points(index_items, prices_by_share_id, custom_index, :high),
+              # volume: 0, # not sure how to calculate it
+            }
+          elsif prices_by_share_id.size > 0
+            # Consider if prices_by_share_id.size == 0 then it's a weekend or holiday
+            puts "Not all prices for #{date} missed: #{required_shares.keys.join(', ')}"
+          end
         end
+
+        CustomIndexPrice.insert_all(attrs)
       end
     end
 
-    def calc_index_points(index_items, prices_by_share_id, custom_index, price_attr)
+    def calc_index_points(index_items, prices_by_share_id, custom_index, price_attr, delisted_shares_data)
       total = index_items.sum do |index_item|
-        index_item.shares_count * prices_by_share_id[index_item.share_id].send(price_attr)
+        if delisted_shares_data[index_item.share_id]
+          index_item.shares_count * delisted_shares_data[index_item.share_id].last_close # keep as cash in index until next quarter/year
+        else
+          index_item.shares_count * prices_by_share_id[index_item.share_id].send(price_attr)
+        end
       end
       total / custom_index.coeff_d
     end
@@ -271,6 +318,22 @@ class IndexCalculator
       end.to_h
     end
 
+    def load_delisted_shares
+      listed_till_by_share_id = Share.where.not(listed_till: nil).pluck(:id, :listed_till).to_h
+      last_prices = load_last_prices(listed_till_by_share_id.keys, Date.today)
+
+      listed_till_by_share_id.map do |share_id, listed_till|
+        [
+          share_id,
+          DelistedShare.new(
+            share_id: share_id,
+            listed_till: listed_till,
+            last_close: last_prices[share_id],
+          )
+        ]
+      end.to_h
+    end
+
     def date_iterator(period)
       start = SharePrice.minimum("date")
       case period
@@ -289,7 +352,7 @@ class IndexCalculator
       res = []
       while start < Date.today
         start = start.send(method)
-        res << (yield start)
+        res << (yield start, (start + step).send(method))
         start += step
       end
       res
