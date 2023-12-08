@@ -60,64 +60,7 @@
   </tbody>
 </table>
 
-<% if @price_lines %>
-  <div id="index-chart">
-  </div>
-
-  <script>
-    var trace_b = {
-      name: 'IMOEX',
-      x: <%= raw(@benchmark.map { |l| l[0].to_s }.to_json) %>,
-      open: <%= raw(@benchmark.map { |l| l[1].to_f }.to_json) %>,
-      close: <%= raw(@benchmark.map { |l| l[2].to_f }.to_json) %>,
-      high: <%= raw(@benchmark.map { |l| l[1..2].max.to_f }.to_json) %>,
-      low: <%= raw(@benchmark.map { |l| l[1..2].min.to_f }.to_json) %>,
-
-      // cutomise colors
-      increasing: {line: {color: 'lightblue'}},
-      decreasing: {line: {color: 'orange'}},
-
-      type: 'ohlc',
-      xaxis: 'x',
-      yaxis: 'y'
-    };
-
-    <% @price_lines.each_with_index do |(name, prices), i| %>
-      var trace_<%= i %> = {
-        name: '<%= name %>',
-        x: <%= raw(prices.map { |l| l[0].to_s }.to_json) %>,
-        open: <%= raw(prices.map { |l| l[1].to_f }.to_json) %>,
-        close: <%= raw(prices.map { |l| l[2].to_f }.to_json) %>,
-        high: <%= raw(prices.map { |l| l[1..2].max.to_f }.to_json) %>,
-        low: <%= raw(prices.map { |l| l[1..2].min.to_f }.to_json) %>,
-        type: 'ohlc',
-        xaxis: 'x',
-        yaxis: 'y'
-      };
-    <% end %>
-
-    var data = [trace_b, <%= @price_lines.size.times.to_a.map { |i| "trace_#{i}" }.join(',') %>];
-
-    var layout = {
-      dragmode: 'zoom',
-      showlegend: true,
-      legend: {
-        x: 1,
-        y: 1,
-        xanchor: 'right',
-        yanchor: 'bottom'
-      },
-      xaxis: {
-        rangeslider: {
-          visible: false
-        }
-      },
-      yaxis: {title: 'IMOEX points'},
-    };
-
-    Plotly.newPlot('index-chart', data, layout);
-  </script>
-<% end %>
+<%= render partial: "chart", locals: { price_lines: @price_lines, benchmark: @benchmark } %>
 
 <% if @custom_index_items&.size > 0 %>
   <h2>Состав индекса по периодам</h2>
