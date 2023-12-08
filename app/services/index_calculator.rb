@@ -5,8 +5,8 @@ class IndexCalculator
 
   FILTERS = "filters".freeze
   FILTERS_LL = "listing_level".freeze
-  FILTERS_TICKERS = "tickers".freeze
   FILTERS_SECTOR = "sector".freeze
+  FILTERS_TICKERS = "tickers".freeze
 
   SELECTION = "selection".freeze
   SELECTION_MARKET_CAP = "market_cap".freeze
@@ -38,6 +38,8 @@ class IndexCalculator
 
   class << self
     def build_index(custom_index)
+      custom_index.update!(status: "in_progress", progress: 0)
+
       settings = custom_index.settings
       prev_index_items = []
       index_items_per_period = date_iterator(settings[REVIEW_PERIOD]) do |date|
@@ -51,18 +53,24 @@ class IndexCalculator
       end.reject(&:empty?)
 
       last_date = nil
+      total_count = index_items_per_period.size
+      i = 0
       index_items_per_period.each_cons(2) do |prev_index_items, index_items|
         from_date = prev_index_items.first.date
         to_date = index_items.first.date - 1.day
         create_index_prices(custom_index, from_date, to_date, prev_index_items)
         last_date = to_date
+        i += 1
+        custom_index.update!(progress: (i * 100 / total_count))
       end
 
       if last_date
         create_index_prices(custom_index, last_date, Date.today, index_items_per_period[-1])
       end
 
-      index_items_per_period.size
+      index_items_per_period.size.tap do |size|
+        custom_index.update!(status: "done", progress: 100)
+      end
     end
 
     def filter_shares(date, filters)

@@ -44,3 +44,9 @@
 .text-predanger {
   color: #fd7e14;;
 }
+
+.progress {
+  min-height: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}

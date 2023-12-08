@@ -1,6 +1,28 @@
 <h1><%= @custom_index.name %></h1>
 
-<%= @settings = @custom_index.settings %>
+<% @settings = @custom_index.settings %>
+
+<% if @custom_index.status != "done" %>
+  <script>
+    setTimeout(function() {
+      window.location.reload();
+    }, 2500);
+  </script>
+
+  <div class="alert alert-warning" role="alert">
+    Индекс считается. Пожалуйста, подождите...
+  </div>
+  <%# progress bar %>
+  <div class="progress">
+    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: <%= @custom_index.progress %>%" aria-valuenow="<%= @custom_index.progress %>" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+<% end %>
+
+<% if @custom_index.status == "done" && @custom_index.error != nil %>
+  <div class="alert alert-danger" role="alert">
+    <%= @custom_index.error %>
+  </div>
+<% end %>
 
 <table class="table table-striped">
   <tbody>

@@ -48,6 +48,7 @@ class CustomIndexesController < ApplicationController
     end
 
     if @custom_index.save
+      BuildIndexJob.perform_async(@custom_index.id)
       redirect_to custom_index_path(@custom_index)
     else
       render :new

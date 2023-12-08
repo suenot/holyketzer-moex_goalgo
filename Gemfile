@@ -84,3 +84,5 @@ end
 gem "devise", "~> 4.9"
 
 gem "matrix", "~> 0.4.2"
+
+gem "sidekiq", "~> 7.2"
