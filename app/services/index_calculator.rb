@@ -49,6 +49,8 @@ class IndexCalculator
   class << self
     def build_index(custom_index)
       custom_index.update!(status: "in_progress", progress: 0)
+      CustomIndexItem.where(custom_index: custom_index).delete_all
+      CustomIndexPrice.where(custom_index: custom_index).delete_all
       delisted_shares = load_delisted_shares
 
       settings = custom_index.settings
