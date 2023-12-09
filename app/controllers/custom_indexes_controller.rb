@@ -5,7 +5,7 @@ class CustomIndexesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:filter_check]
 
   def index
-    @custom_indexes = custom_indexes_scope
+    @custom_indexes = custom_indexes_scope.order(avg_yr: :desc, rsd: :asc)
 
     prices = @custom_indexes.map do |custom_index|
       prices = CustomIndexPrice.where(custom_index_id: custom_index.id).order(date: :asc).pluck(:date, :open, :close)
@@ -104,20 +104,29 @@ class CustomIndexesController < ApplicationController
       .pluck(:date, :open, :close)
 
     benchmark_by_date = benchmark.to_h { |row| [row[0], row[-1]] }
+    res = []
 
-    mapped = price_lines.each do |name, price_line|
-      if price_line.present?
-        bm_value = benchmark_by_date[price_line[0][0]]
-        value = price_line[0][-1]
-        coeff = bm_value / value
-        price_line.each do |row|
-          row[1] *= coeff
-          row[2] *= coeff
+    price_lines.each do |name, price_line|
+      if price_line.any?
+        mapped_price_line = []
+        coeff = nil
+
+        price_line.each do |date, open, close|
+          if coeff
+            mapped_price_line << [date, open * coeff, close * coeff]
+          else
+            if (bm_value = benchmark_by_date[date])
+              coeff = bm_value / close
+              mapped_price_line << [date, open * coeff, close * coeff]
+            end
+          end
         end
+
+        res << [name, mapped_price_line]
       end
     end
 
-    [benchmark, price_lines]
+    [benchmark, res]
   end
 
   def custom_index_params

@@ -26,6 +26,8 @@ class IndexCalculator
   INDEX_START_POINT = 1_000
   INDEX_START_MONEY = 1_000_000_000
 
+  THRESHOLD_SHARES_LOAD_PREV_PRICE = 2
+
   class ShareCoeffs
     attr_reader :share_id, :beta, :returns
 
@@ -227,7 +229,7 @@ class IndexCalculator
       prices_by_share_id = load_last_prices(share_ids, date)
 
       if prev_index_items.size > 0
-        total_money = prev_index_items.sum { |item| item.shares_count * prices_by_share_id[item.share_id] }
+        total_money = prev_index_items.sum { |item| item.shares_count * prices_by_share_id[item.share_id].close }
       else
         total_money = INDEX_START_MONEY
         custom_index.update!(coeff_d: total_money / INDEX_START_POINT)
@@ -239,7 +241,7 @@ class IndexCalculator
         CustomIndexItem.where(custom_index: custom_index, date: date).delete_all
 
         share_cap_by_weight.map do |share_cap, weight|
-          shares_count = (total_money * weight / prices_by_share_id[share_cap.share_id])
+          shares_count = (total_money * weight / prices_by_share_id[share_cap.share_id].close)
 
           CustomIndexItem.create!(
             custom_index: custom_index,
@@ -278,6 +280,13 @@ class IndexCalculator
           SharePrice.where(share_id: share_ids, date: date).where("open > 0 and close > 0").each do |share_price|
             prices_by_share_id[share_price.share_id] = share_price
             required_shares.delete(share_price.share_id)
+          end
+
+          if required_shares.any? && required_shares.size <= THRESHOLD_SHARES_LOAD_PREV_PRICE
+            load_last_prices(required_shares.keys, date).each do |share_id, share_price|
+              prices_by_share_id[share_id] = share_price
+              required_shares.delete(share_id)
+            end
           end
 
           if prices_by_share_id.size > 0 && required_shares.size == 0
@@ -326,7 +335,7 @@ class IndexCalculator
         if date - price.date > 7.days
           raise "Too price for #{price.share.secid} on #{date}"
         end
-        [price.share_id, price.close]
+        [price.share_id, price]
       end.to_h
     end
 
@@ -340,7 +349,7 @@ class IndexCalculator
           DelistedShare.new(
             share_id: share_id,
             listed_till: listed_till,
-            last_close: last_prices[share_id],
+            last_close: last_prices[share_id]&.close,
           )
         ]
       end.to_h
