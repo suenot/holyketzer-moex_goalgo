@@ -107,7 +107,7 @@
         <tr>
           <th scope="row" class="index-date"><%= date %></th>
           <td>
-            <% custom_index_items.sort_by { |x| -x.weight }.each do |custom_index_item| %>
+            <% custom_index_items.sort_by { |x| [-x.weight, x.share.secid] }.each do |custom_index_item| %>
               <%= custom_index_item.share.secid %>
               <strong>
                 <%= (custom_index_item.weight*100).to_f.round(2) %>%

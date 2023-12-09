@@ -284,8 +284,8 @@ class IndexCalculator
             attrs << {
               custom_index_id: custom_index.id,
               date: date,
-              open: calc_index_points(index_items, prices_by_share_id, custom_index, :open, delisted_shares_data),
-              close: calc_index_points(index_items, prices_by_share_id, custom_index, :close, delisted_shares_data),
+              open: calc_index_points(date, index_items, prices_by_share_id, custom_index, :open, delisted_shares_data),
+              close: calc_index_points(date, index_items, prices_by_share_id, custom_index, :close, delisted_shares_data),
               # low: calc_index_points(index_items, prices_by_share_id, custom_index, :low), # should be composed from smaller periods
               # high: calc_index_points(index_items, prices_by_share_id, custom_index, :high),
               # volume: 0, # not sure how to calculate it
@@ -300,9 +300,9 @@ class IndexCalculator
       end
     end
 
-    def calc_index_points(index_items, prices_by_share_id, custom_index, price_attr, delisted_shares_data)
+    def calc_index_points(date, index_items, prices_by_share_id, custom_index, price_attr, delisted_shares_data)
       total = index_items.sum do |index_item|
-        if delisted_shares_data[index_item.share_id]
+        if delisted_shares_data[index_item.share_id] && date > delisted_shares_data[index_item.share_id].listed_till
           index_item.shares_count * delisted_shares_data[index_item.share_id].last_close # keep as cash in index until next quarter/year
         else
           index_item.shares_count * prices_by_share_id[index_item.share_id].send(price_attr)
