@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_08_212203) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_09_152251) do
   create_schema "_timescaledb_cache"
   create_schema "_timescaledb_catalog"
   create_schema "_timescaledb_config"
@@ -150,6 +150,15 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_08_212203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_share_sectors_on_name", unique: true
+  end
+
+  create_table "share_splits", force: :cascade do |t|
+    t.bigint "share_id", null: false
+    t.date "date"
+    t.integer "before"
+    t.integer "after"
+    t.index ["share_id", "date"], name: "index_share_splits_on_share_id_and_date", unique: true
+    t.index ["share_id"], name: "index_share_splits_on_share_id"
   end
 
   create_table "shares", force: :cascade do |t|
