@@ -6,14 +6,15 @@ class CustomIndexesController < ApplicationController
 
   def index
     @custom_indexes = custom_indexes_scope.order(avg_yr: :desc, rsd: :asc)
+    if @custom_indexes.any?
+      prices = @custom_indexes.map do |custom_index|
+        prices = CustomIndexPrice.where(custom_index_id: custom_index.id).order(date: :asc).pluck(:date, :open, :close)
+        [custom_index.name, prices]
+      end.to_h
 
-    prices = @custom_indexes.map do |custom_index|
-      prices = CustomIndexPrice.where(custom_index_id: custom_index.id).order(date: :asc).pluck(:date, :open, :close)
-      [custom_index.name, prices]
-    end.to_h
-
-    @benchmark, @price_lines = *normalize_prices!(prices)
-    @bm_stat = IndexStat.calc(@benchmark)
+      @benchmark, @price_lines = *normalize_prices!(prices)
+      @bm_stat = IndexStat.calc(@benchmark)
+    end
   end
 
   def show
