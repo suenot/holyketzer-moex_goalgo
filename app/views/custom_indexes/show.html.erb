@@ -64,24 +64,34 @@
   <table class="table table-striped">
     <tbody>
       <tr>
+        <td></td>
+        <th>Этот индекс</th>
+        <th class="text-secondary">IMOEX</th>
+      </tr>
+      <tr>
         <th scope="row">Среднегодовая доходность</th>
         <td><%= @custom_index.avg_yr.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.avg_yr.round(2) %>%</td>
       </tr>
       <tr>
         <th scope="row">Среднемесячная доходность</th>
         <td><%= @custom_index.avg_mr.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.avg_mr.round(2) %>%</td>
       </tr>
       <tr>
         <th scope="row">Максимальная просадка за год</th>
         <td><%= @custom_index.max_yd.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.max_yd.round(2) %>%</td>
       </tr>
       <tr>
         <th scope="row">Максимальная просадка за месяц</th>
         <td><%= @custom_index.max_md.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.max_md.round(2) %>%</td>
       </tr>
       <tr>
         <th scope="row">Стандартное отклонение</th>
         <td><%= @custom_index.rsd.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.rsd.round(2) %>%</td>
       </tr>
     </tbody>
   </table>

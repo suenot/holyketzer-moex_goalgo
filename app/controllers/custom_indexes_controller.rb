@@ -13,6 +13,7 @@ class CustomIndexesController < ApplicationController
     end.to_h
 
     @benchmark, @price_lines = *normalize_prices!(prices)
+    @bm_stat = IndexStat.calc(@benchmark)
   end
 
   def show
@@ -26,6 +27,7 @@ class CustomIndexesController < ApplicationController
 
     if @custom_index_prices.any?
       @benchmark, @price_lines = *normalize_prices!(@custom_index.name => @custom_index_prices)
+      @bm_stat = IndexStat.calc(@benchmark)
     end
   end
 

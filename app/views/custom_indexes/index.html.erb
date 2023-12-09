@@ -12,7 +12,13 @@
     </tr>
   </thead>
   <tbody>
-    <% @custom_indexes.each do |custom_index| %>
+    <tr>
+        <td class="text-secondary">IMOEX</td>
+        <td class="text-secondary"><%= @bm_stat.avg_yr&.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.rsd&.round(2) %>%</td>
+        <td></td>
+      </tr>
+    <% @custom_indexes.sort_by { |ci| [-ci.avg_yr, ci.rsd] }.each do |custom_index| %>
       <tr>
         <td><%= custom_index.name %></td>
         <td><%= custom_index.avg_yr&.round(2) %>%</td>
