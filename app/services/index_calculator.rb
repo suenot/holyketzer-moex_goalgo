@@ -235,8 +235,6 @@ class IndexCalculator
         custom_index.update!(coeff_d: total_money / INDEX_START_POINT)
       end
 
-      puts "Total sum of weight=#{share_cap_by_weight.values.sum} #{share_cap_by_weight.size} #{share_cap_by_weight.values}"
-
       CustomIndexItem.transaction do
         CustomIndexItem.where(custom_index: custom_index, date: date).delete_all
 

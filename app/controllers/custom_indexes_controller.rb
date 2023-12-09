@@ -83,7 +83,7 @@ class CustomIndexesController < ApplicationController
       @custom_index.destroy
     end
 
-    redireexes custom_indexes_path, notice: "#{@custom_index.name} удалён"
+    redirect_to custom_indexes_path, notice: "#{@custom_index.name} удалён"
   end
 
   private
