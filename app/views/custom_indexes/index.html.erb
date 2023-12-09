@@ -24,7 +24,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
+    <% if @bm_stat %>
+      <tr>
         <td class="text-secondary">
           IMOEX
           <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Бенчмарк"></i>
@@ -34,6 +35,7 @@
         <td class="text-secondary"><%= @bm_stat.max_yd&.round(2) %>%</td>
         <td></td>
       </tr>
+    <% end %>
     <% @custom_indexes.each do |custom_index| %>
       <tr>
         <td><%= custom_index.name %></td>
