@@ -72,6 +72,18 @@ class CustomIndexesController < ApplicationController
     end
   end
 
+  def destroy
+    @custom_index = custom_indexes_scope.find(params[:id])
+
+    CustomIndex.transaction do
+      CustomIndexPrice.where(custom_index_id: @custom_index.id).delete_all
+      CustomIndexItem.where(custom_index_id: @custom_index.id).delete_all
+      @custom_index.destroy
+    end
+
+    redireexes custom_indexes_path, notice: "#{@custom_index.name} удалён"
+  end
+
   private
 
   def custom_indexes_scope

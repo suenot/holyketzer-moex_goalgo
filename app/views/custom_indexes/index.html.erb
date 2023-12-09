@@ -18,7 +18,12 @@
         <td><%= custom_index.avg_yr&.round(2) %>%</td>
         <td><%= custom_index.rsd&.round(2) %>%</td>
         <td>
-          <%= link_to "Открыть", custom_index %>
+          <%= link_to custom_index, class: "btn btn-primary" do %>
+            <i class="bi bi-eye-fill"></i>
+          <% end %>
+          <%= link_to custom_index, data: { "turbo-method": :delete , "turbo-confirm": "Вы уверены?" }, class: "btn btn-danger" do %>
+            <i class="bi bi-trash"></i>
+          <% end %>
         </td>
       </tr>
     <% end %>

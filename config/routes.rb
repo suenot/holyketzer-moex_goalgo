@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   root "custom_indexes#index"
 
   # Defines the routes for the CustomIndex resource
-  resources :custom_indexes, except: [:edit, :update, :destroy] do
+  resources :custom_indexes, except: [:edit, :update] do
     post :filter_check, on: :collection
   end
 end
