@@ -12,14 +12,24 @@
       low: <%= raw(@benchmark.map { |l| l[1..2].min.to_f }.to_json) %>,
 
       // cutomise colors
-      increasing: {line: {color: 'lightblue'}},
-      decreasing: {line: {color: 'orange'}},
+      increasing: {line: {color: 'black'}},
+      decreasing: {line: {color: 'lightgray'}},
 
       type: 'ohlc',
       xaxis: 'x',
       yaxis: 'y'
     };
 
+    <% colors = [
+        ["blue", "lightblue"],
+        ["green", "lightgreen"],
+        ["crimson", "lightcoral"],
+        ["purple", "pink"],
+        ["olive", "darkseagreen"],
+        ["Indigo", "Lavender"],
+        ["brown", "BurlyWood"],
+      ]
+    %>
     <% @price_lines.each_with_index do |(name, prices), i| %>
       var trace_<%= i %> = {
         name: '<%= name %>',
@@ -30,7 +40,10 @@
         low: <%= raw(prices.map { |l| l[1..2].min.to_f }.to_json) %>,
         type: 'ohlc',
         xaxis: 'x',
-        yaxis: 'y'
+        yaxis: 'y',
+
+        increasing: {line: {color: '<%= colors[i % colors.size][0] %>'}},
+        decreasing: {line: {color: '<%= colors[i % colors.size][1] %>'}},
       };
     <% end %>
 
