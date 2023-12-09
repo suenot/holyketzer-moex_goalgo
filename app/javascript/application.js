@@ -3,6 +3,11 @@ import "@hotwired/turbo-rails"
 import "controllers"
 
 document.addEventListener('turbo:load', function() {
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
   $('.multiple-select-field').select2({
     theme: "bootstrap-5",
     width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',

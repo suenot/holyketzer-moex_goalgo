@@ -5,17 +5,33 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>Название</th>
-      <th>Доходность</th>
-      <th>Риск</th>
+      <th>
+        Название
+      </th>
+      <th>
+        Доходность
+        <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="В год"></i>
+      </th>
+      <th>
+        Риск
+        <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Стандартное отклонение"></i>
+      </th>
+      <th>
+        Просадка
+        <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Максимальная просадка за год"></i>
+      </th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-        <td class="text-secondary">IMOEX</td>
+        <td class="text-secondary">
+          IMOEX
+          <i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Бенчмарк"></i>
+        </td>
         <td class="text-secondary"><%= @bm_stat.avg_yr&.round(2) %>%</td>
         <td class="text-secondary"><%= @bm_stat.rsd&.round(2) %>%</td>
+        <td class="text-secondary"><%= @bm_stat.max_yd&.round(2) %>%</td>
         <td></td>
       </tr>
     <% @custom_indexes.each do |custom_index| %>
@@ -23,6 +39,7 @@
         <td><%= custom_index.name %></td>
         <td><%= custom_index.avg_yr&.round(2) %>%</td>
         <td><%= custom_index.rsd&.round(2) %>%</td>
+        <td><%= custom_index.max_yd&.round(2) %>%</td>
         <td>
           <%= link_to custom_index, class: "btn btn-primary" do %>
             <i class="bi bi-eye-fill"></i>
